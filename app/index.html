@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Demo | Ruyka SFU</title>
+  <link rel="stylesheet" href="/ruyka/meet/style.css">
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+</head>
+
+<body class="root">
+  <header id="page-header">
+    <h1 id="page-title">
+      <a href="https://github.com/SaKu2110/ruyka">Ruyka</a>
+    </h1>
+  </header>
+
+  <div class="container">
+    <div id="left">
+      <div class="local-video-area">
+        <div class="video-container">
+          <div id="local-video"></div>
+          <div id="action-menu">
+            <div id="action-menu-header">
+              <h2>Local Video</h2>
+              <div class="status-icon-wrapper">
+                <span class="point" id="status-batch"></span>
+              </div>
+            </div>
+            <div id="action-menu-button">
+              <button id="connect-button">
+                <i class="gg-data"></i>
+                <div id="connect-button-text">Connect</div>
+              </button>
+              <button id="close-button" disabled>
+                <i class="gg-close-r"></i>
+                <div id="close-button-text">Close</div>
+              </button>
+              <label class="switch">
+                <input type="checkbox" class="checkbox" id="video-source-toggle-switch">
+                <span class="video-source-toggle-thumb">
+                  <i class="gg-browser"></i>
+                  <i class="gg-camera"></i>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="remote-video-area">
+        <div id="remote-video-area-header">
+          <h2>Remote Video</h2>
+        </div>
+        <div class="video-container">
+          <div id="remote-videos"></div>
+        </div>
+      </div>
+    </div>
+    <div id="right">
+      <div class="tab-menu">
+        <input id="log" type="radio" name="tab-item" checked>
+        <label class="tab-item" for="log">Log</label>
+        <input id="session-description" type="radio" name="tab-item">
+        <label class="tab-item" for="session-description">SDP</label>
+        <div class="tab-content" id="log-content">
+          TODO: Event Logを表示
+        </div>
+        <div class="tab-content" id="session-description-content">
+          <div id="local-session-description-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="/ruyka/meet/index.js"></script>
+
+</html>

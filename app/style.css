@@ -1,0 +1,322 @@
+/* https://css.gg/app */
+@import url('https://unpkg.com/css.gg@2.0.0/icons/css/data.css');
+@import url('https://unpkg.com/css.gg@2.0.0/icons/css/close-r.css');
+@import url('https://unpkg.com/css.gg@2.0.0/icons/css/browser.css');
+@import url('https://unpkg.com/css.gg@2.0.0/icons/css/camera.css');
+
+.root {
+  width: 100vw;
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#page-header {
+  width: auto;
+  padding: 27px 3% 10px;
+  background-color: #313131;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+#page-header #page-title {
+  margin: 0;
+  padding: 0;
+  font-size: 25px;
+  color: aliceblue;
+  user-select: none;
+}
+
+#page-title a {
+  color: aliceblue;
+  text-decoration: blink;
+}
+
+.container {
+  height: 100%;
+  width: auto;
+  display: flex;
+}
+
+#left {
+  width: 65%;
+
+  .local-video-area {
+    height: 30%;
+    width: 100%;
+    min-height: 250px;
+    min-width: 700px;
+  }
+
+  .video-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+.video-container video {
+  width: 320px;
+  height: 240px;
+  flex-shrink: 1;
+  padding: 5px 10px 0;
+}
+
+#action-menu h2 {
+  user-select: none;
+}
+
+#action-menu-button {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 4px;
+}
+
+#action-menu-header {
+  display: flex;
+}
+
+#connect-button {
+  width: 150px;
+  display: flex;
+
+  .gg-data {
+    margin-top: 5px;
+    margin-right: 20px;
+    margin-left: 5px;
+  }
+
+  #connect-button-text {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 5px 10px;
+    user-select: none;
+  }
+}
+
+#close-button {
+  width: 150px;
+  display: flex;
+
+  .gg-close-r {
+    margin-top: 2px;
+    margin-right: 20px;
+    margin-left: 3px;
+  }
+
+  #close-button-text {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 5px 10px;
+    user-select: none;
+  }
+}
+
+hr {
+  border: none;
+  border-top: 5px solid #108BAC;
+  color: #108BAC;
+  overflow: visible;
+  text-align: center;
+  height: 1%;
+}
+
+#left .remote-video-area {
+  height: 65%;
+  width: 100%;
+}
+
+.container #right {
+  width: 35%;
+}
+
+.tab-menu {
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+}
+
+.tab-item {
+  width: calc(100%/2);
+  height: 50px;
+  border-bottom: 3px solid #108BAC;
+  background-color: #fff;
+  line-height: 50px;
+  font-size: 16px;
+  text-align: center;
+  color: #565656;
+  display: block;
+  float: left;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tab-item:hover {
+  opacity: 0.75;
+}
+
+input[name="tab-item"] {
+  display: none;
+}
+
+.tab-content {
+  display: none;
+  width: calc(100% - 40px);
+  height: calc(100% - 60px);
+  padding: 5px 20px 0;
+  clear: both;
+  overflow: scroll;
+  white-space: nowrap;
+
+  #local-session-description-content {
+    height: 0;
+  }
+}
+
+#log:checked~#log-content,
+#session-description:checked~#session-description-content {
+  display: block;
+}
+
+.tab-menu input:checked+.tab-item {
+  background-color: #108BAC;
+  color: #fff;
+}
+
+/* Toggle */
+.switch {
+  display: inline-block;
+  width: 62px;
+  height: 34px;
+  position: relative;
+
+  .checkbox {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.video-source-toggle-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #108BAC;
+  border-radius: 40px;
+  cursor: pointer;
+
+  .gg-camera {
+    color: #fff;
+    margin-top: 1px;
+    margin-right: 10px;
+  }
+
+  .gg-browser {
+    width: 24px;
+    height: 16.5px;
+    color: #fff;
+    margin-bottom: 1px;
+    margin-left: 5.7px;
+  }
+}
+
+.video-source-toggle-thumb:before {
+  content: "";
+  height: 27px;
+  width: 27px;
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: .4s all ease;
+}
+
+.checkbox:checked+.video-source-toggle-thumb:before {
+  transform: translateX(28px);
+}
+
+/* Status Icon */
+.status-icon-wrapper {
+  position: relative;
+}
+
+.point {
+  display: block;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin: 0 20px;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: background-color cubic-bezier(0.215, 0.61, 0.355, 1) .4s;
+  cursor: pointer;
+  top: 50%;
+  transform: translate(0, -50%)
+}
+
+.point.-active {
+  background-color: #00cc66;
+}
+
+@keyframes activePulseMotion {
+  0% {
+    transform: translate(-50%, -50%) scale(1, 1);
+    background-color: rgba(0, 219, 132, 0.4)
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2, 2);
+    background-color: rgba(51, 153, 102, 0);
+  }
+}
+
+.point.-checking {
+  background-color: #ff9933;
+}
+
+@keyframes checkingPulseMotion {
+  0% {
+    transform: translate(-50%, -50%) scale(1, 1);
+    background-color: rgba(255, 102, 0, 0.4)
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2, 2);
+    background-color: rgba(68, 27, 0, 0);
+  }
+}
+
+.point:focus {
+  outline: none;
+}
+
+.point:after {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: opacity linear 0.4s;
+  content: '';
+}
+
+.point.-active:after {
+  animation: activePulseMotion 1.4s linear infinite;
+}
+
+.point.-checking:after {
+  animation: checkingPulseMotion 1.4s linear infinite;
+}
