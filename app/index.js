@@ -1,4 +1,3 @@
-// https://lealog.hateblo.jp/entry/2019/03/12/114529
 class RuykaClient {
   static trackKindTypeAudio = 'audio';
   static trackKindTypeVideo = 'video';
@@ -21,8 +20,8 @@ class RuykaClient {
   };
 
   connect() {
-    this.ws = new WebSocket("{{.}}");
-    this.ws.onmessage = async (event) => {
+    const ws = new WebSocket("{{.}}");
+    ws.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (!message) return;
 
@@ -40,7 +39,7 @@ class RuykaClient {
 
             // sdpを画面上に表示する
             this.latestAnswer.innerText = answer.sdp;
-            this.ws.send(JSON.stringify({ event: 'answer', sdp: answer }));
+            ws.send(JSON.stringify({ event: 'answer', sdp: answer }));
             return;
           case 'candidate':
             const candidate = message.ice;
@@ -53,8 +52,9 @@ class RuykaClient {
         window.alert(error);
       };
     };
-    this.ws.onclose = () => { /* TODO: implement here */ };
-    this.ws.onerror = () => { /* TODO: implement here */ };
+    ws.onclose = () => { /* TODO: implement here */ };
+    ws.onerror = () => { /* TODO: implement here */ };
+    this.ws = ws;
   };
 
   close() {
@@ -74,42 +74,36 @@ class RuykaClient {
     if (batchClassList.contains('-active')) batchClassList.remove('-active');
   };
 
-  switchVideoSource() {
-    if (this.mediaType === 'video') {
-      this.mediaType = 'display';
-      this.#updateStream();
-    } else {
-      this.mediaType = 'video';
-      this.#updateStream();
-    }
+  switchMediaType() {
+    this.mediaType = (this.mediaType === 'video') ? 'display' : 'video';
+    this.#updateStream();
   };
 
-  // private
   #newRTCPeerConnection() {
     // FIXME: set ice servers parameter
     const peer = new RTCPeerConnection();
-    peer.ontrack = (ev) => {
-      if (ev.track.kind === 'audio') return;
+    peer.ontrack = (event) => {
+      if (event.track.kind === 'audio') return;
 
-      const video = document.createElement(ev.track.kind);
-      video.srcObject = ev.streams[0];
+      const video = document.createElement(event.track.kind);
+      video.srcObject = event.streams[0];
       video.autoplay = true;
       video.disablePictureInPicture = true;
       this.remoteVideos.appendChild(video);
 
-      ev.track.onmute = () => video.play();
-      ev.streams[0].onremovetrack = () => {
+      event.track.onmute = () => video.play();
+      event.streams[0].onremovetrack = () => {
         if (video.parentNode) video.parentNode.removeChild(video);
       };
     };
-    peer.onicecandidate = (ev) => {
-      if (!ev.cancelable) return;
+    peer.onicecandidate = (event) => {
+      if (!event.cancelable) return;
       this.ws.send(JSON.stringify({
         event: 'candidate',
-        ice: ev.candidate,
+        ice: event.candidate,
       }));
     };
-    peer.onconnectionstatechange = (_ev) => {
+    peer.onconnectionstatechange = () => {
       const batchClassList = document.getElementById('status-batch').classList;
       switch (this.peer.connectionState) {
         case 'checking':
@@ -141,7 +135,7 @@ class RuykaClient {
       this.#updateSenderTrack();
     } catch (error) {
       window.alert(error);
-    }
+    };
   };
 
   // Transceiver の track と stream を張り替える
@@ -184,5 +178,5 @@ closeButton.onclick = () => {
   closeButton.disabled = true;
 };
 videoSourceToggleSwitch.onclick = () => {
-  client.switchVideoSource();
+  client.switchMediaType();
 };
