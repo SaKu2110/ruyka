@@ -1,4 +1,4 @@
-
+// https://lealog.hateblo.jp/entry/2019/03/12/114529
 class RuykaClient {
   static trackKindTypeAudio = 'audio';
   static trackKindTypeVideo = 'video';
@@ -14,50 +14,47 @@ class RuykaClient {
 
     this.localVideo = localVideo;
     this.remoteVideos = document.getElementById('remote-videos');
+    this.latestAnswer = document.getElementById('local-session-description-content');
 
     this.#newRTCPeerConnection();
-    this.#setupLocalVideo();
+    this.#updateStream();
   };
 
   connect() {
-    const ws = new WebSocket("{{.}}");
-    ws.onmessage = async (ev) => {
-      const msg = JSON.parse(ev.data);
-      if (!msg) return;
+    this.ws = new WebSocket("{{.}}");
+    this.ws.onmessage = async (event) => {
+      const message = JSON.parse(event.data);
+      if (!message) return;
 
       try {
-        switch (msg.event) {
+        switch (message.event) {
           case 'offer':
-            const offer = msg.sdp;
-            if (offer) {
-              await this.peer.setRemoteDescription(offer);
-              const answer = await this.peer.createAnswer();
-              await this.peer.setLocalDescription(answer);
+            const offer = message.sdp;
+            if (!offer) return;
 
-              // sdpを画面上に表示する
-              document.getElementById('local-session-description-content').innerText = answer.sdp;
-              this.ws.send(JSON.stringify({
-                event: 'answer',
-                sdp: answer,
-              }));
-            }
+            await this.peer.setRemoteDescription(offer);
+            this.#updateSenderTrack();
+
+            const answer = await this.peer.createAnswer();
+            await this.peer.setLocalDescription(answer);
+
+            // sdpを画面上に表示する
+            this.latestAnswer.innerText = answer.sdp;
+            this.ws.send(JSON.stringify({ event: 'answer', sdp: answer }));
             return;
           case 'candidate':
-            const candidate = msg.ice;
-            if (candidate) await this.peer.addIceCandidate(candidate);
+            const candidate = message.ice;
+            if (!candidate) return;
+
+            await this.peer.addIceCandidate(candidate);
             return;
-        }
-      } catch (err) {
-        window.alert(err);
+        };
+      } catch (error) {
+        window.alert(error);
       };
     };
-    ws.onclose = (_ev) => {
-      // TODO: implement here.
-    };
-    ws.onerror = (_ev) => {
-      // TODO: implement here.
-    };
-    this.ws = ws;
+    this.ws.onclose = () => { /* TODO: implement here */ };
+    this.ws.onerror = () => { /* TODO: implement here */ };
   };
 
   close() {
@@ -69,7 +66,7 @@ class RuykaClient {
       this.remoteVideos.removeChild(node);
     });
     this.#newRTCPeerConnection();
-    this.#setupLocalVideo();
+    this.#updateStream();
 
     // ステータスバッチの表示処理
     const batchClassList = document.getElementById('status-batch').classList;
@@ -80,10 +77,10 @@ class RuykaClient {
   switchVideoSource() {
     if (this.mediaType === 'video') {
       this.mediaType = 'display';
-      this.#setupLocalVideo();
+      this.#updateStream();
     } else {
       this.mediaType = 'video';
-      this.#setupLocalVideo();
+      this.#updateStream();
     }
   };
 
@@ -132,36 +129,44 @@ class RuykaClient {
     this.peer = peer;
   };
 
-  async #setupLocalVideo() {
+  // stream を張り替える
+  async #updateStream() {
     try {
       const stream = (this.mediaType === 'video')
         ? await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         : await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-      stream.getAudioTracks().forEach(async tr => {
-        const sender = this.peer.getSenders().find(s => s.track.kind === tr.kind);
-        if (sender) {
-          await sender.replaceTrack(tr);
-        } else {
-          this.peer.addTrack(tr, stream);
-        };
-      });
-      stream.getVideoTracks().forEach(async tr => {
-        const sender = this.peer.getSenders().find(s => s.track.kind === tr.kind);
-        if (sender) {
-          await sender.replaceTrack(tr);
-        } else {
-          this.peer.addTrack(tr, stream);
-          this.peer.addTransceiver(tr, {
-            streams: [stream],
-          });
-        };
-      });
+      this.stream = stream;
       this.localVideo.srcObject = stream;
-    } catch (err) {
-      window.alert(err);
+
+      this.#updateSenderTrack();
+    } catch (error) {
+      window.alert(error);
     }
   };
-}
+
+  // Transceiver の track と stream を張り替える
+  #updateSenderTrack() {
+    const transceivers = this.peer.getTransceivers();
+    if (transceivers.length === 0) return;
+
+    this.stream.getAudioTracks().forEach(async track => {
+      const transceiver = transceivers.find(tr => tr.mid === '0');
+      if (!!transceiver) {
+        transceiver.sender.replaceTrack(track);
+        transceiver.sender.setStreams(this.stream);
+        transceiver.direction = 'sendrecv';
+      };
+    });
+    this.stream.getVideoTracks().forEach(async track => {
+      const transceiver = transceivers.find(tr => tr.mid === '1');
+      if (!!transceiver) {
+        transceiver.sender.replaceTrack(track);
+        transceiver.sender.setStreams(this.stream);
+        transceiver.direction = 'sendrecv';
+      };
+    });
+  };
+};
 
 const client = new RuykaClient();
 const connectButton = document.getElementById('connect-button');
