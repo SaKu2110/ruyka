@@ -1,0 +1,26 @@
+# ref: https://github.com/x-motemen/git-pr-release
+name: git-pr-release
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    env:
+      GIT_PR_RELEASE_BRANCH_PRODUCTION: master
+      GIT_PR_RELEASE_BRANCH_STAGING: develop
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Ruby 3.1
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+      - name: Execute git-pr-release
+        env:
+          GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PR_RELEASE_TEMPLATE: ".github/pr-release.tmpl.erb"
+        run: |
+          gem install --no-document git-pr-release -v "2.2.0"
+          git remote set-url origin "https://${GITHUB_ACTOR}:${GIT_PR_RELEASE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git-pr-release
